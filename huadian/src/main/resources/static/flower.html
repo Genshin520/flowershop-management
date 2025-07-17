@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>花卉管理 - 花店管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --accent-color: #f093fb;
+            --success-color: #4facfe;
+            --warning-color: #43e97b;
+            --danger-color: #fa709a;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* 导航栏样式 */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark-color) !important;
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem !important;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        /* 主要内容区域 */
+        .main-content {
+            padding: 2rem 0;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        /* 搜索和操作区域 */
+        .action-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        /* 花卉卡片网格 */
+        .flowers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .flower-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .flower-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .flower-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .flower-card:hover .flower-image {
+            transform: scale(1.05);
+        }
+
+        .flower-content {
+            padding: 1.5rem;
+        }
+
+        .flower-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .flower-description {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .flower-price {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .flower-stock {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .flower-category {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .flower-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-custom {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, var(--success-color), var(--warning-color));
+            color: white;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, var(--danger-color), #e74c3c);
+            color: white;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: white;
+        }
+
+        /* 模态框样式 */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 20px 20px 0 0;
+            border: none;
+        }
+
+        .modal-title {
+            font-weight: 600;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e1e5e9;
+            padding: 0.75rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .flowers-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .flower-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-seedling me-2"></i>花店管理系统
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="flower.html">
+                            <i class="fas fa-seedling me-1"></i>花卉管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="order.html">
+                            <i class="fas fa-clipboard-list me-1"></i>订单管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="category.html">
+                            <i class="fas fa-tags me-1"></i>分类管理
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="main-content">
+        <div class="container">
+            <!-- 页面头部 -->
+            <div class="page-header">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h1 class="page-title">
+                            <i class="fas fa-seedling me-2"></i>花卉管理
+                        </h1>
+                        <p class="text-muted">管理您的花卉库存、价格和分类信息</p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <button class="btn-custom btn-edit" onclick="showAddFlowerModal()">
+                            <i class="fas fa-plus me-2"></i>添加花卉
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 搜索和操作区域 -->
+            <div class="action-section">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="searchInput" placeholder="搜索花卉名称...">
+                            <button class="btn btn-outline-secondary" onclick="searchFlowers()">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <span class="text-muted">共 <span id="flowerCount">0</span> 种花卉</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 花卉展示区域 -->
+            <div id="flowersContainer" class="flowers-grid">
+                <!-- 花卉卡片将在这里动态加载 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑花卉模态框 -->
+    <div class="modal fade" id="flowerModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">添加花卉</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="flowerForm">
+                        <input type="hidden" id="flowerId">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">花卉名称 *</label>
+                                    <input type="text" class="form-control" id="flowerName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">价格 *</label>
+                                    <input type="number" class="form-control" id="flowerPrice" step="0.01" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">库存数量 *</label>
+                                    <input type="number" class="form-control" id="flowerStock" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">分类</label>
+                                    <select class="form-select" id="flowerCategory">
+                                        <option value="">选择分类</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">描述</label>
+                            <textarea class="form-control" id="flowerDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">图片URL</label>
+                            <input type="url" class="form-control" id="flowerImageUrl" placeholder="https://example.com/image.jpg">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn-custom btn-edit" onclick="saveFlower()">
+                        <span id="saveButtonText">保存</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 全局变量
+        let flowers = [];
+        let categories = [];
+        let isEditing = false;
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFlowers();
+            loadCategories();
+        });
+
+        // 加载花卉数据
+        async function loadFlowers() {
+            try {
+                const response = await fetch('/api/flowers');
+                flowers = await response.json();
+                displayFlowers(flowers);
+                updateFlowerCount();
+            } catch (error) {
+                console.error('加载花卉数据失败:', error);
+                showAlert('加载花卉数据失败', 'danger');
+            }
+        }
+
+        // 加载分类数据
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/categories');
+                categories = await response.json();
+                updateCategoryOptions();
+            } catch (error) {
+                console.error('加载分类数据失败:', error);
+            }
+        }
+
+        // 更新分类选项
+        function updateCategoryOptions() {
+            const select = document.getElementById('flowerCategory');
+            select.innerHTML = '<option value="">选择分类</option>';
+            categories.forEach(category => {
+                select.innerHTML += `<option value="${category.name}">${category.name}</option>`;
+            });
+        }
+
+        // 显示花卉列表
+        function displayFlowers(flowersToShow) {
+            const container = document.getElementById('flowersContainer');
+            container.innerHTML = '';
+
+            if (flowersToShow.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-seedling"></i>
+                        <h4>暂无花卉数据</h4>
+                        <p>点击"添加花卉"开始管理您的花卉库存</p>
+                    </div>
+                `;
+                return;
+            }
+
+            flowersToShow.forEach(flower => {
+                const card = document.createElement('div');
+                card.className = 'flower-card';
+                card.innerHTML = `
+                    <img src="${flower.imageUrl || 'https://via.placeholder.com/350x250?text=花卉图片'}" 
+                         class="flower-image" alt="${flower.name}" onerror="this.src='https://via.placeholder.com/350x250?text=花卉图片'">
+                    <div class="flower-content">
+                        <h3 class="flower-name">${flower.name}</h3>
+                        <p class="flower-description">${flower.description || '暂无描述'}</p>
+                        <div class="flower-price">¥${flower.price}</div>
+                        <p class="flower-stock">库存: ${flower.stock} 件</p>
+                        <span class="flower-category">${flower.category || '未分类'}</span>
+                        <div class="flower-actions">
+                            <button class="btn-custom btn-edit" onclick="editFlower(${flower.id})">
+                                <i class="fas fa-edit me-1"></i>编辑
+                            </button>
+                            <button class="btn-custom btn-delete" onclick="deleteFlower(${flower.id})">
+                                <i class="fas fa-trash me-1"></i>删除
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 更新花卉数量
+        function updateFlowerCount() {
+            document.getElementById('flowerCount').textContent = flowers.length;
+        }
+
+        // 搜索花卉
+        async function searchFlowers() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            if (searchTerm === '') {
+                displayFlowers(flowers);
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/flowers/search?keyword=${encodeURIComponent(searchTerm)}`);
+                const searchResults = await response.json();
+                displayFlowers(searchResults);
+            } catch (error) {
+                console.error('搜索花卉失败:', error);
+                showAlert('搜索花卉失败', 'danger');
+            }
+        }
+
+        // 显示添加花卉模态框
+        function showAddFlowerModal() {
+            isEditing = false;
+            document.getElementById('modalTitle').textContent = '添加花卉';
+            document.getElementById('saveButtonText').textContent = '保存';
+            document.getElementById('flowerForm').reset();
+            document.getElementById('flowerId').value = '';
+            
+            const modal = new bootstrap.Modal(document.getElementById('flowerModal'));
+            modal.show();
+        }
+
+        // 编辑花卉
+        function editFlower(id) {
+            const flower = flowers.find(f => f.id === id);
+            if (flower) {
+                isEditing = true;
+                document.getElementById('modalTitle').textContent = '编辑花卉';
+                document.getElementById('saveButtonText').textContent = '更新';
+                document.getElementById('flowerId').value = flower.id;
+                document.getElementById('flowerName').value = flower.name;
+                document.getElementById('flowerDescription').value = flower.description || '';
+                document.getElementById('flowerPrice').value = flower.price;
+                document.getElementById('flowerStock').value = flower.stock;
+                document.getElementById('flowerCategory').value = flower.category || '';
+                document.getElementById('flowerImageUrl').value = flower.imageUrl || '';
+                
+                const modal = new bootstrap.Modal(document.getElementById('flowerModal'));
+                modal.show();
+            }
+        }
+
+        // 保存花卉
+        async function saveFlower() {
+            const flowerData = {
+                name: document.getElementById('flowerName').value,
+                description: document.getElementById('flowerDescription').value,
+                price: parseFloat(document.getElementById('flowerPrice').value),
+                stock: parseInt(document.getElementById('flowerStock').value),
+                category: document.getElementById('flowerCategory').value,
+                imageUrl: document.getElementById('flowerImageUrl').value
+            };
+
+            const flowerId = document.getElementById('flowerId').value;
+
+            try {
+                const url = flowerId ? `/api/flowers/${flowerId}` : '/api/flowers';
+                const method = flowerId ? 'PUT' : 'POST';
+                
+                if (flowerId) {
+                    flowerData.id = parseInt(flowerId);
+                }
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(flowerData)
+                });
+
+                if (response.ok) {
+                    const savedFlower = await response.json();
+                    
+                    if (isEditing) {
+                        // 更新现有花卉
+                        const index = flowers.findIndex(f => f.id === savedFlower.id);
+                        if (index !== -1) {
+                            flowers[index] = savedFlower;
+                        }
+                    } else {
+                        // 添加新花卉
+                        flowers.push(savedFlower);
+                    }
+                    
+                    displayFlowers(flowers);
+                    updateFlowerCount();
+                    bootstrap.Modal.getInstance(document.getElementById('flowerModal')).hide();
+                    showAlert(isEditing ? '花卉更新成功' : '花卉添加成功', 'success');
+                } else {
+                    showAlert('操作失败', 'danger');
+                }
+            } catch (error) {
+                console.error('保存花卉失败:', error);
+                showAlert('保存花卉失败', 'danger');
+            }
+        }
+
+        // 删除花卉
+        async function deleteFlower(id) {
+            if (!confirm('确定要删除这个花卉吗？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/flowers/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    flowers = flowers.filter(f => f.id !== id);
+                    displayFlowers(flowers);
+                    updateFlowerCount();
+                    showAlert('花卉删除成功', 'success');
+                } else {
+                    showAlert('删除失败', 'danger');
+                }
+            } catch (error) {
+                console.error('删除花卉失败:', error);
+                showAlert('删除花卉失败', 'danger');
+            }
+        }
+
+        // 显示提示信息
+        function showAlert(message, type) {
+            // 创建提示元素
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 100px; right: 20px; z-index: 9999; min-width: 300px;';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            // 3秒后自动移除
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 3000);
+        }
+
+        // 搜索框回车事件
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchFlowers();
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分类管理 - 花店管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e1e5e9;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .nav-links a {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .nav-links a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .flower-count {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        /* 模态对话框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e1e5e9;
+        }
+        
+        .modal-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .flower-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .flower-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .flower-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .flower-item:last-child {
+            border-bottom: none;
+        }
+        
+        .flower-info {
+            flex: 1;
+        }
+        
+        .flower-name {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .flower-price {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .flower-current-category {
+            color: #999;
+            font-size: 12px;
+        }
+        
+        .add-flower-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .add-flower-btn:hover {
+            background: #218838;
+        }
+        
+        .add-flower-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>分类管理</h1>
+            <p>管理花卉分类信息</p>
+        </div>
+        
+        <div class="content">
+            <div class="nav-links">
+                <a href="index.html">返回首页</a>
+                <a href="flower.html">花卉管理</a>
+                <a href="order.html">订单管理</a>
+            </div>
+            
+            <div class="form-section">
+                <h3>添加/编辑分类</h3>
+                <form id="categoryForm">
+                    <input type="hidden" id="categoryId">
+                    <div class="form-group">
+                        <label for="categoryName">分类名称</label>
+                        <input type="text" id="categoryName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoryDescription">分类描述</label>
+                        <textarea id="categoryDescription" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">保存分类</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">重置</button>
+                </form>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>分类名称</th>
+                            <th>描述</th>
+                            <th>花卉数量</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoryTableBody">
+                        <!-- 数据将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加花卉模态对话框 -->
+    <div id="addFlowerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">为分类添加花卉</span>
+                <span class="close" onclick="closeAddFlowerModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>选择要添加到 <strong id="targetCategoryName"></strong> 分类的花卉：</p>
+                <div class="flower-list" id="flowerList">
+                    <!-- 花卉列表将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = '/api/categories';
+        let allFlowers = [];
+        let currentCategoryId = null;
+        
+        // 页面加载时获取分类列表和花卉列表
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCategories();
+            loadAllFlowers();
+        });
+        
+        // 表单提交处理
+        document.getElementById('categoryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveCategory();
+        });
+        
+        // 加载分类列表
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/with-count`);
+                const categories = await response.json();
+                displayCategories(categories);
+            } catch (error) {
+                console.error('加载分类失败:', error);
+                alert('加载分类失败');
+            }
+        }
+        
+        // 加载所有花卉
+        async function loadAllFlowers() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/flowers`);
+                allFlowers = await response.json();
+            } catch (error) {
+                console.error('加载花卉失败:', error);
+            }
+        }
+        
+        // 显示分类列表
+        function displayCategories(categories) {
+            const tbody = document.getElementById('categoryTableBody');
+            tbody.innerHTML = '';
+            
+            categories.forEach(category => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${category.id}</td>
+                    <td>${category.name}</td>
+                    <td>${category.description || '-'}</td>
+                    <td><span class="flower-count">${category.flowerCount}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-success" onclick="editCategory(${category.id})">编辑</button>
+                            <button class="btn btn-sm btn-info" onclick="showAddFlowerModal(${category.id}, '${category.name}')">添加花卉</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCategory(${category.id})" ${category.flowerCount > 0 ? 'disabled' : ''}>删除</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 显示添加花卉模态对话框
+        function showAddFlowerModal(categoryId, categoryName) {
+            currentCategoryId = categoryId;
+            document.getElementById('targetCategoryName').textContent = categoryName;
+            displayFlowerList();
+            document.getElementById('addFlowerModal').style.display = 'block';
+        }
+        
+        // 关闭添加花卉模态对话框
+        function closeAddFlowerModal() {
+            document.getElementById('addFlowerModal').style.display = 'none';
+            currentCategoryId = null;
+        }
+        
+        // 显示花卉列表
+        function displayFlowerList() {
+            const flowerList = document.getElementById('flowerList');
+            flowerList.innerHTML = '';
+            
+            allFlowers.forEach(flower => {
+                const isInCurrentCategory = flower.categoryId === currentCategoryId;
+                const flowerItem = document.createElement('div');
+                flowerItem.className = 'flower-item';
+                flowerItem.innerHTML = `
+                    <div class="flower-info">
+                        <div class="flower-name">${flower.name}</div>
+                        <div class="flower-price">价格: ¥${flower.price}</div>
+                        <div class="flower-current-category">当前分类: ${flower.category || '未分类'}</div>
+                    </div>
+                    <button class="add-flower-btn" 
+                            onclick="addFlowerToCategory(${flower.id})"
+                            ${isInCurrentCategory ? 'disabled' : ''}>
+                        ${isInCurrentCategory ? '已在此分类' : '添加到此分类'}
+                    </button>
+                `;
+                flowerList.appendChild(flowerItem);
+            });
+        }
+        
+        // 添加花卉到分类
+        async function addFlowerToCategory(flowerId) {
+            try {
+                const response = await fetch(`/api/flowers/${flowerId}/category`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        categoryId: currentCategoryId
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('花卉已成功添加到分类');
+                    closeAddFlowerModal();
+                    loadCategories(); // 刷新分类列表
+                    loadAllFlowers(); // 刷新花卉列表
+                } else {
+                    const errorData = await response.json();
+                    alert('添加失败: ' + (errorData.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('添加花卉到分类失败:', error);
+                alert('添加花卉到分类失败');
+            }
+        }
+        
+        // 保存分类
+        async function saveCategory() {
+            const categoryId = document.getElementById('categoryId').value;
+            const name = document.getElementById('categoryName').value;
+            const description = document.getElementById('categoryDescription').value;
+            
+            const categoryData = {
+                name: name,
+                description: description
+            };
+            
+            try {
+                let response;
+                if (categoryId) {
+                    // 更新分类
+                    response = await fetch(`${API_BASE_URL}/${categoryId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(categoryData)
+                    });
+                } else {
+                    // 新增分类
+                    response = await fetch(API_BASE_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(categoryData)
+                    });
+                }
+                
+                if (response.ok) {
+                    alert(categoryId ? '分类更新成功' : '分类添加成功');
+                    resetForm();
+                    loadCategories();
+                } else {
+                    const errorData = await response.json();
+                    alert('操作失败: ' + (errorData.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('保存分类失败:', error);
+                alert('保存分类失败');
+            }
+        }
+        
+        // 编辑分类
+        async function editCategory(id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/${id}`);
+                const category = await response.json();
+                
+                document.getElementById('categoryId').value = category.id;
+                document.getElementById('categoryName').value = category.name;
+                document.getElementById('categoryDescription').value = category.description || '';
+            } catch (error) {
+                console.error('获取分类信息失败:', error);
+                alert('获取分类信息失败');
+            }
+        }
+        
+        // 删除分类
+        async function deleteCategory(id) {
+            if (!confirm('确定要删除这个分类吗？')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    alert('分类删除成功');
+                    loadCategories();
+                } else {
+                    const errorData = await response.json();
+                    alert('删除失败: ' + (errorData.error || '未知错误'));
+                }
+            } catch (error) {
+                console.error('删除分类失败:', error);
+                alert('删除分类失败');
+            }
+        }
+        
+        // 重置表单
+        function resetForm() {
+            document.getElementById('categoryId').value = '';
+            document.getElementById('categoryName').value = '';
+            document.getElementById('categoryDescription').value = '';
+        }
+        
+        // 点击模态对话框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('addFlowerModal');
+            if (event.target === modal) {
+                closeAddFlowerModal();
+            }
+        }
+    </script>
+</body>
+</html> 

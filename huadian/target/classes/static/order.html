@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单管理 - 花店管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .nav-links a {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .nav-links a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .search-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .search-input {
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e1e5e9;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-confirmed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-shipped {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-delivered {
+            background: #c3e6cb;
+            color: #155724;
+        }
+        
+        .status-cancelled {
+            background: #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>订单管理</h1>
+            <p>管理花店订单信息</p>
+        </div>
+        
+        <div class="content">
+            <div class="nav-links">
+                <a href="index.html">返回首页</a>
+                <a href="flower.html">花卉管理</a>
+                <a href="category.html">分类管理</a>
+            </div>
+            
+            <div class="controls">
+                <div class="search-section">
+                    <input type="text" class="search-input" id="searchInput" placeholder="搜索客户姓名...">
+                    <button class="btn btn-primary" onclick="searchOrders()">搜索</button>
+                </div>
+                <div>
+                    <button class="btn btn-success" onclick="exportAllOrders()">导出所有订单</button>
+                    <button class="btn btn-warning" onclick="showCreateOrderModal()">创建订单</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>订单号</th>
+                            <th>客户姓名</th>
+                            <th>联系电话</th>
+                            <th>总金额</th>
+                            <th>状态</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <!-- 订单数据将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建订单模态框 -->
+    <div id="createOrderModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);z-index:9999;align-items:center;justify-content:center;">
+      <div style="background:#fff;padding:30px 40px;border-radius:10px;min-width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+        <h3 style="margin-bottom:20px;">创建订单</h3>
+        <form id="createOrderForm" onsubmit="submitCreateOrder(event)">
+          <div style="margin-bottom:12px;">
+            <input type="text" id="customerName" placeholder="客户姓名" required style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;">
+          </div>
+          <div style="margin-bottom:12px;">
+            <input type="text" id="customerPhone" placeholder="联系电话" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;">
+          </div>
+          <div style="margin-bottom:12px;">
+            <input type="text" id="customerAddress" placeholder="收货地址" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;">
+          </div>
+          <div id="orderFlowersContainer"></div>
+          <button type="button" class="btn btn-sm btn-success" onclick="addFlowerRow()">添加花卉</button>
+          <div style="margin-top:24px;">
+            <button type="submit" class="btn btn-primary">提交订单</button>
+            <button type="button" class="btn btn-danger" onclick="closeCreateOrderModal()">取消</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = '/api/orders';
+        
+        // 页面加载时获取订单列表
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrders();
+        });
+        
+        // 加载订单列表
+        async function loadOrders() {
+            try {
+                const response = await fetch(API_BASE_URL);
+                const orders = await response.json();
+                displayOrders(orders);
+            } catch (error) {
+                console.error('加载订单失败:', error);
+                alert('加载订单失败');
+            }
+        }
+        
+        // 显示订单列表
+        function displayOrders(orders) {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+            
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${order.orderNumber}</td>
+                    <td>${order.customerName}</td>
+                    <td>${order.customerPhone || '-'}</td>
+                    <td>¥${order.totalAmount}</td>
+                    <td><span class="status-badge status-${order.status.toLowerCase()}">${getStatusText(order.status)}</span></td>
+                    <td>${formatDateTime(order.createdTime)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-primary" onclick="viewOrder(${order.id})">查看</button>
+                            <button class="btn btn-sm btn-success" onclick="printOrder(${order.id})">打印</button>
+                            <button class="btn btn-sm btn-warning" onclick="exportOrder(${order.id})">导出</button>
+                            <button class="btn btn-sm btn-info" onclick="showUpdateStatusModal(${order.id}, '${order.status}')">修改状态</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteOrder(${order.id})">删除</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                'PENDING': '待处理',
+                'CONFIRMED': '已确认',
+                'SHIPPED': '已发货',
+                'DELIVERED': '已送达',
+                'CANCELLED': '已取消'
+            };
+            return statusMap[status] || status;
+        }
+        
+        // 格式化日期时间
+        function formatDateTime(dateTimeStr) {
+            if (!dateTimeStr) return '-';
+            const date = new Date(dateTimeStr);
+            return date.toLocaleString('zh-CN');
+        }
+        
+        // 搜索订单
+        async function searchOrders() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            if (!keyword) {
+                loadOrders();
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/search?customerName=${encodeURIComponent(keyword)}`);
+                const orders = await response.json();
+                displayOrders(orders);
+            } catch (error) {
+                console.error('搜索订单失败:', error);
+                alert('搜索订单失败');
+            }
+        }
+        
+        // 查看订单详情
+        function viewOrder(id) {
+            window.open(`order-print.html?id=${id}`, '_blank');
+        }
+        
+        // 打印订单
+        function printOrder(id) {
+            window.open(`order-print.html?id=${id}`, '_blank');
+        }
+        
+        // 导出单个订单
+        async function exportOrder(id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/${id}/export/excel`);
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `order_${id}.xlsx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else {
+                    alert('导出失败');
+                }
+            } catch (error) {
+                console.error('导出失败:', error);
+                alert('导出失败');
+            }
+        }
+        
+        // 导出所有订单
+        async function exportAllOrders() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/export/excel`);
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'orders.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                } else {
+                    alert('导出失败');
+                }
+            } catch (error) {
+                console.error('导出失败:', error);
+                alert('导出失败');
+            }
+        }
+        
+        // 删除订单
+        async function deleteOrder(id) {
+            if (!confirm('确定要删除这个订单吗？')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    alert('订单删除成功');
+                    loadOrders();
+                } else {
+                    alert('删除失败');
+                }
+            } catch (error) {
+                console.error('删除订单失败:', error);
+                alert('删除订单失败');
+            }
+        }
+        
+        // 显示创建订单模态框（预留功能）
+        function showCreateOrderModal() {
+            document.getElementById('createOrderForm').reset();
+            document.getElementById('orderFlowersContainer').innerHTML = '';
+            flowerRowCount = 0;
+            addFlowerRow(); // 默认添加一行
+            document.getElementById('createOrderModal').style.display = 'flex';
+            loadFlowerOptions();
+        }
+
+        // 关闭模态框
+        function closeCreateOrderModal() {
+            document.getElementById('createOrderModal').style.display = 'none';
+        }
+
+        // 添加花卉行
+        let flowerRowCount = 0;
+        function addFlowerRow() {
+            flowerRowCount++;
+            const container = document.getElementById('orderFlowersContainer');
+            const row = document.createElement('div');
+            row.className = 'row mb-2';
+            row.innerHTML = `
+                <div style="display:flex;gap:8px;margin-bottom:8px;">
+                    <select class="form-select" id="orderFlower${flowerRowCount}" required style="flex:2"></select>
+                    <input type="number" class="form-control" id="orderQuantity${flowerRowCount}" placeholder="数量" min="1" required style="flex:1">
+                    <button type="button" class="btn btn-sm btn-danger" onclick="this.parentNode.parentNode.remove()">删除</button>
+                </div>
+            `;
+            container.appendChild(row);
+            loadFlowerOptions();
+        }
+
+        // 加载花卉选项
+        async function loadFlowerOptions() {
+            try {
+                const response = await fetch('/api/flowers/available');
+                const flowers = await response.json();
+                const selects = document.querySelectorAll('select[id^="orderFlower"]');
+                selects.forEach(select => {
+                    if (select.options.length > 1) return; // 已加载过则跳过
+                    select.innerHTML = '<option value="">选择花卉</option>';
+                    flowers.forEach(flower => {
+                        const option = document.createElement('option');
+                        option.value = flower.id;
+                        option.textContent = `${flower.name} - ¥${flower.price} (库存:${flower.stock})`;
+                        select.appendChild(option);
+                    });
+                });
+            } catch (e) {
+                alert('加载花卉选项失败');
+            }
+        }
+
+        // 提交订单
+        async function submitCreateOrder(event) {
+            event.preventDefault();
+            const orderItems = [];
+            const rows = document.querySelectorAll('#orderFlowersContainer .row');
+            for (let i = 0; i < rows.length; i++) {
+                const flowerId = rows[i].querySelector('select').value;
+                const quantity = rows[i].querySelector('input').value;
+                if (flowerId && quantity) {
+                    orderItems.push({
+                        flower: { id: parseInt(flowerId) },
+                        quantity: parseInt(quantity)
+                    });
+                }
+            }
+            if (orderItems.length === 0) {
+                alert('请至少选择一种花卉');
+                return;
+            }
+            const orderData = {
+                customerName: document.getElementById('customerName').value,
+                customerPhone: document.getElementById('customerPhone').value,
+                customerAddress: document.getElementById('customerAddress').value,
+                orderItems: orderItems
+            };
+            try {
+                const response = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+                if (response.ok) {
+                    alert('订单创建成功');
+                    closeCreateOrderModal();
+                    loadOrders();
+                } else {
+                    alert('创建订单失败');
+                }
+            } catch (e) {
+                alert('创建订单失败');
+            }
+        }
+
+        // 显示修改状态弹窗
+        function showUpdateStatusModal(orderId, currentStatus) {
+            const statusOptions = [
+                { value: 'PENDING', text: '待处理' },
+                { value: 'CONFIRMED', text: '已确认' },
+                { value: 'SHIPPED', text: '已发货' },
+                { value: 'DELIVERED', text: '已送达' },
+                { value: 'CANCELLED', text: '已取消' }
+            ];
+            let optionsHtml = statusOptions.map(opt => `<option value="${opt.value}" ${opt.value === currentStatus ? 'selected' : ''}>${opt.text}</option>`).join('');
+            const modalHtml = `
+                <div id="updateStatusModal" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;z-index:9999;">
+                    <div style="background:#fff;padding:30px 40px;border-radius:10px;min-width:300px;box-shadow:0 8px 32px rgba(0,0,0,0.2);text-align:center;">
+                        <h3 style="margin-bottom:20px;">修改订单状态</h3>
+                        <select id="newOrderStatus" style="padding:8px 12px;font-size:16px;border-radius:6px;border:1px solid #ccc;">
+                            ${optionsHtml}
+                        </select>
+                        <div style="margin-top:24px;">
+                            <button class="btn btn-primary" onclick="confirmUpdateOrderStatus(${orderId})">确定</button>
+                            <button class="btn btn-danger" onclick="closeUpdateStatusModal()">取消</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function closeUpdateStatusModal() {
+            const modal = document.getElementById('updateStatusModal');
+            if (modal) modal.remove();
+        }
+
+        async function confirmUpdateOrderStatus(orderId) {
+            const select = document.getElementById('newOrderStatus');
+            if (!select) return;
+            const newStatus = select.value;
+            try {
+                const response = await fetch(`${API_BASE_URL}/${orderId}/status?status=${newStatus}`, { method: 'PUT' });
+                if (response.ok) {
+                    alert('订单状态修改成功');
+                    closeUpdateStatusModal();
+                    loadOrders();
+                } else {
+                    alert('订单状态修改失败');
+                }
+            } catch (e) {
+                alert('订单状态修改失败');
+            }
+        }
+    </script>
+</body>
+</html> 
